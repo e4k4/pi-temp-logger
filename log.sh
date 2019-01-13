@@ -15,17 +15,22 @@ LOGDATE=$(date +"%Y%m%d_%H%M")
 
 LOGFILE="logs/${LOGDATE}_pitemplog.csv"
 
-LOGINTERVALSECONDS=20
+LOGINTERVALSECONDS=598
+
+# For handling exit/sigint
+EXIT=
 
 function printUsage() {
 	echo "Usage: $0 [-tnv]"
+	echo "	-i	Interval in seconds."
+	echo "		Default is 598 (sensor reading takes approx. 2 seconds)"
 	echo "	-t	One sample to console"
 	echo "	-n	Samples only to console, no logfile"
 	echo "	-v	Set verbose flag, bash -x"
 	exit 0
 }
 
-function printHeader() {
+function printLogHeader() {
 	HEADER="time;sensor1;sensor2"
 
 	echo $HEADER
@@ -50,7 +55,13 @@ function doLog() {
 	fi
 }
 
-while getopts ":ntv" OPTS; do
+function handleSigInt() {
+	echo -e "\nSIGINT caught - finishing up.."
+	EXIT=yep
+}
+
+
+while getopts ":ntvi:" OPTS; do
 	case $OPTS in
 	v)
 		set -x
@@ -60,11 +71,18 @@ while getopts ":ntv" OPTS; do
 		;;
 	t)
 		unset LOGFILE
-		printHeader
+		printLogHeader
 		doLog
 		exit 1
 		;;
+	i)
+		LOGINTERVALSECONDS=$OPTARG
+		;;
 	\?)
+		printUsage
+		;;
+	:)
+		echo "ERROR: Option -$OPTARG requires an argument"
 		printUsage
 		;;
 	esac
@@ -76,14 +94,34 @@ done
 
 echo "Starting PI temperature logger"
 echo "** Interval (s):	$LOGINTERVALSECONDS"
-echo "** Logfile:		$LOGFILE"
+echo -n "** Logfile:		"
+
+if [ -z $LOGFILE ]; then
+	echo "<none>"
+else
+	echo $LOGFILE
+fi
+
 echo
 
-printHeader
+trap handleSigInt SIGINT
+printLogHeader
 
 while `true`; do
 	doLog
-	sleep $LOGINTERVALSECONDS		
+	sleep $LOGINTERVALSECONDS
+
+	if [ ! -z $EXIT ]; then
+		break
+	fi
 done
+
+echo -n "Logging ended."
+
+if [ ! -z $LOGFILE ]; then
+	echo " Logfile '$LOGFILE' contains `wc -l $LOGFILE` row(s)."
+else
+	echo
+fi
 
 exit 0
