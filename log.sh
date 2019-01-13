@@ -21,7 +21,7 @@ LOGINTERVALSECONDS=598
 EXIT=
 
 function printUsage() {
-	echo "Usage: $0 [-tnv]"
+	echo "Usage: $0 [-tnv] [-i <seconds>]"
 	echo "	-i	Interval in seconds."
 	echo "		Default is 598 (sensor reading takes approx. 2 seconds)"
 	echo "	-t	One sample to console"
@@ -119,7 +119,7 @@ done
 echo -n "Logging ended."
 
 if [ ! -z $LOGFILE ]; then
-	echo " Logfile '$LOGFILE' contains `wc -l $LOGFILE` row(s)."
+	echo " Logfile '$LOGFILE' contains `sed 1d $LOGFILE | wc -l` row(s) with temperature data."
 else
 	echo
 fi
