@@ -42,7 +42,7 @@ function printUsage() {
 }
 
 function printLogHeader() {
-	HEADER="time;sensor1;sensor2"
+	HEADER="time,sensor1,sensor2"
 
 	echo $HEADER
 
