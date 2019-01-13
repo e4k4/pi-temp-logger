@@ -57,7 +57,7 @@ function doLog() {
 	T0=$($DIGIEXEC -c $P0_CONF -s $P0_USB $PARAMS)
 	T1=$($DIGIEXEC -c $P1_CONF -s $P1_USB $PARAMS)
 	
-	LOG="${DATE};${T0};${T1}"
+	LOG="${DATE},${T0},${T1}"
 
 	echo $LOG
 
