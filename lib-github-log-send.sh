@@ -53,7 +53,8 @@ function initGitHubSend() {
 
 				echo "Log pushed, exit code: $?"
 
-				sleep $SLEEP_NET
+				#sleep $SLEEP_NET
+				sleep 30
 			fi
 		fi
 	done
